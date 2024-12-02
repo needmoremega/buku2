@@ -106,7 +106,6 @@ $bukuData = $bukuReference->getValue();
         <?php else: ?>
             <p>Tidak ada buku yang tersedia.</p>
         <?php endif; ?>
-    </div>
 </div>
 
 </body>
