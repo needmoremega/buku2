@@ -4,9 +4,10 @@ require_once 'firebase.php';
 $firebase = new FirebaseService();
 $database = $firebase->getDatabase();
 
-// Ambil data buku dari Firebase
+// Ambil data dari Firebase
 $beritaRef = $database->getReference('Berita');
 $dataBerita = $beritaRef->getValue();
+
 $bukuReference = $database->getReference('Buku');
 $bukuData = $bukuReference->getValue();
 ?>
@@ -17,42 +18,27 @@ $bukuData = $bukuReference->getValue();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BukuLuku</title>
-</head>
-<script src="https://cdn.tailwindcss.com"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const nextButton = document.querySelector('[data-carousel-next]');
-        const prevButton = document.querySelector('[data-carousel-prev]');
-        const carousel = document.querySelector('[data-carousel="slide"]');
-        let index = 0;
-
-        const items = carousel.querySelectorAll('.carousel-item');
-        const totalItems = items.length;
-
-        function updateCarousel() {
-            const offset = -index * 100;
-            carousel.style.transform = `translateX(${offset}%)`;
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.14/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .slider-text {
+            position: absolute;
+            bottom: 10px;
+            left: 30px;
+            color: white;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 10px 20px;
+            border-radius: 5px;
         }
-
-        nextButton.addEventListener('click', function() {
-            index = (index + 1) % totalItems;
-            updateCarousel();
-        });
-
-        prevButton.addEventListener('click', function() {
-            index = (index - 1 + totalItems) % totalItems;
-            updateCarousel();
-        });
-    });
-</script>
-
+    </style>
+</head>
 <body class="bg-gray-100">
 
 <!-- Navbar -->
 <nav class="bg-blue-600 p-4">
     <div class="container mx-auto flex justify-between items-center">
         <a href="#" class="text-white text-2xl font-bold">BukuLuku</a>
-        <ul class="flex space-x-6">
+        <ul class="flex space-x-4">
             <li><a href="#" class="text-white hover:text-blue-300">Home</a></li>
             <li><a href="#" class="text-white hover:text-blue-300">Katalog</a></li>
             <li><a href="#" class="text-white hover:text-blue-300">Profil</a></li>
@@ -60,52 +46,68 @@ $bukuData = $bukuReference->getValue();
     </div>
 </nav>
 
-<!-- Slider -->
-<div class="mt-6">
-    <div id="carouselExample" class="relative w-full" data-carousel="slide">
-        <div class="relative h-56 overflow-hidden rounded-lg md:h-96">
-            <div class="flex transition-transform duration-700 ease-in-out" style="transform: translateX(0)">
-                <?php if ($dataBerita): ?>
-                    <?php foreach ($dataBerita as $berita): ?>
-                        <div class="carousel-item min-w-full">
-                            <img src="<?php echo $berita['gambar']; ?>" alt="<?php echo $berita['judul']; ?>" class="w-full h-full object-cover">
-                            <p class="text-center text-white"><?php echo $berita['judul']; ?></p>
-                        </div>
-                    <?php endforeach; ?>
-                <?php else: ?>
-                    <p class="text-center text-white">Tidak ada berita yang tersedia.</p>
-                <?php endif; ?>
+<div class="carousel w-full ">
+    <?php if (!empty($dataBerita) && is_array($dataBerita)): ?>
+        <?php $index = 1; ?>
+        <?php foreach ($dataBerita as $key => $item): ?>
+            <?php 
+            // Validasi untuk memastikan data 'gambar' dan 'judul' tersedia
+            $gambar = isset($item['gambar']) ? $item['gambar'] : null;
+            $judul = isset($item['judul']) ? $item['judul'] : 'Judul Tidak Tersedia';
+
+            // Skip jika 'gambar' atau 'judul' tidak valid
+            if (!$gambar) {
+                continue;
+            }
+            ?>
+            <div id="slide<?= $index ?>" class="carousel-item relative w-full">
+                <!-- Gambar dengan tinggi kecil -->
+                <img src="<?= htmlspecialchars($gambar) ?>" class="w-full h-96" alt="<?= htmlspecialchars($judul) ?>" />
+                <div class="slider-text">
+                    <h2 class="text-xl font-bold"><?= htmlspecialchars($judul) ?></h2>
+                </div>
+                <div class="absolute left-5 right-5 top-1/2 flex -translate-y-1/2 transform justify-between">
+                    <a href="#slide<?= $index === 1 ? count($dataBerita) : $index - 1 ?>" class="btn btn-circle">❮</a>
+                    <a href="#slide<?= $index === count($dataBerita) ? 1 : $index + 1 ?>" class="btn btn-circle">❯</a>
+                </div>
             </div>
+            <?php $index++; ?>
+        <?php endforeach; ?>
+    <?php else: ?>
+        <div class="text-center py-10">
+            <h2 class="text-xl font-bold text-gray-700">Tidak ada berita ditemukan</h2>
         </div>
-        <button type="button" class="absolute top-0 left-0 z-30 inline-flex items-center justify-center px-4 py-2 text-white bg-black bg-opacity-50 hover:bg-opacity-75 focus:outline-none" data-carousel-prev>
-            <span class="text-2xl">&lt;</span>
-        </button>
-        <button type="button" class="absolute top-0 right-0 z-30 inline-flex items-center justify-center px-4 py-2 text-white bg-black bg-opacity-50 hover:bg-opacity-75 focus:outline-none" data-carousel-next>
-            <span class="text-2xl">&gt;</span>
-        </button>
-    </div>
+    <?php endif; ?>
 </div>
+
 
 <!-- Daftar Buku -->
 <div class="container mx-auto mt-8">
-    <h2 class="text-3xl font-semibold text-gray-800">Daftar Buku</h2>
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-6">
-        <?php if ($bukuData): ?>
+    <h2 class="text-3xl font-semibold text-gray-800 mb-4">Daftar Buku</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <?php if (!empty($bukuData) && is_array($bukuData)): ?>
             <?php foreach ($bukuData as $bukuId => $buku): ?>
-                <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                    <!-- Gambar Buku -->
-                    <img src="<?php echo $buku['gambarBuku']; ?>" alt="Buku" class="w-full h-48 object-cover">
+                <?php 
+                $gambarBuku = $buku['gambarBuku'] ?? 'https://via.placeholder.com/150';
+                $judulBuku = $buku['judul'] ?? 'Judul Tidak Tersedia';
+                $deskripsi = $buku['deskripsi'] ?? 'Deskripsi Tidak Tersedia';
+                ?>
+                <div class="buku-item bg-white rounded-lg shadow-md overflow-hidden transform transition duration-300 hover:scale-105 hover:shadow-lg">
+                    <img src="<?= htmlspecialchars($gambarBuku) ?>" alt="Buku" class="w-full h-48 object-cover">
                     <div class="p-4">
-                        <!-- Judul Buku -->
-                        <h3 class="text-lg font-semibold text-gray-700"><?php echo $buku['judul']; ?></h3>
-                        <!-- Deskripsi Buku -->
-                        <p class="text-sm text-gray-500"><?php echo $buku['deskripsi']; ?></p>
+                        <h3 class="text-lg font-semibold text-gray-700"><?= htmlspecialchars($judulBuku) ?></h3>
+                        <p class="text-sm text-gray-500">
+                            <?= strlen($deskripsi) > 100 
+                                ? substr($deskripsi, 0, 100) . '...' 
+                                : $deskripsi; ?>
+                        </p>
                     </div>
                 </div>
             <?php endforeach; ?>
         <?php else: ?>
-            <p>Tidak ada buku yang tersedia.</p>
+            <p class="text-gray-700">Tidak ada buku yang tersedia.</p>
         <?php endif; ?>
+    </div>
 </div>
 
 </body>
