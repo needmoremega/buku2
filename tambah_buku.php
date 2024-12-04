@@ -8,8 +8,11 @@ $database = $firebase->getDatabase();
 $bukuReference = $database->getReference('Buku');
 $bukuData = $bukuReference->getValue();
 
+
+
+
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Data buku yang akan ditambahkan
     $judul = $_POST['judul'];
     $author = $_POST['author'];
     $category = $_POST['category'];
@@ -25,14 +28,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'deskripsi' => $deskripsi,
         'gambarBuku' => $gambar,
         'jumlahPinjam' => 0,
+        'stock' => 1,
         'pdf' => $pdf
     ];
 
-    // Tambahkan ke Firebase
     $database->getReference('Buku/' . $idbuku)->set($newBook);
 
     echo "Buku berhasil ditambahkan!";
+    header('Location: admin.php?message=Buku Berhasil Ditambahkan');
+    exit;
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -105,9 +111,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700"><?php echo $buku['author']; ?></td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700"><?php echo $buku['category']; ?></td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <a href="<?php echo $buku['pdf']; ?>" target="_blank" class="text-indigo-600 hover:text-indigo-800 font-semibold underline">Lihat PDF</a>
+                                    <a href="<?= htmlspecialchars($buku['pdf'] ?? '') ?>" target="_blank" class="text-indigo-600 hover:text-indigo-800 font-semibold underline">Lihat PDF</a>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700"><?php echo $buku['deskripsi']; ?></td>
+                                <td class="border border-gray-200 p-3"><?php echo $buku['deskripsi']; ?></td>
 
                             </tr>
                         <?php endforeach; ?>

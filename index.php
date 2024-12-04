@@ -62,7 +62,7 @@ $bukuData = $bukuReference->getValue();
             ?>
             <div id="slide<?= $index ?>" class="carousel-item relative w-full">
                 <!-- Gambar dengan tinggi kecil -->
-                <img src="<?= htmlspecialchars($gambar) ?>" class="w-full h-96" alt="<?= htmlspecialchars($judul) ?>" />
+                <img src="<?= htmlspecialchars($gambar) ?>" class="w-full max-h-lvh	" alt="<?= htmlspecialchars($judul) ?>" />
                 <div class="slider-text">
                     <h2 class="text-xl font-bold"><?= htmlspecialchars($judul) ?></h2>
                 </div>
@@ -92,8 +92,8 @@ $bukuData = $bukuReference->getValue();
                 $judulBuku = $buku['judul'] ?? 'Judul Tidak Tersedia';
                 $deskripsi = $buku['deskripsi'] ?? 'Deskripsi Tidak Tersedia';
                 ?>
-                <div class="buku-item bg-white rounded-lg shadow-md overflow-hidden transform transition duration-300 hover:scale-105 hover:shadow-lg">
-                    <img src="<?= htmlspecialchars($gambarBuku) ?>" alt="Buku" class="w-full h-48 object-cover">
+                <div class="buku-item bg-white rounded-lg shadow-md overflow-hidden transform transition duration-300 hover:scale-95 hover:shadow-lg">
+                    <img src="<?= htmlspecialchars($gambarBuku) ?>" alt="Buku" class="w-full max-h-60 object-fit">
                     <div class="p-4">
                         <h3 class="text-lg font-semibold text-gray-700"><?= htmlspecialchars($judulBuku) ?></h3>
                         <p class="text-sm text-gray-500">
